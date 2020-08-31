@@ -31,12 +31,12 @@ namespace PhoneBookApi.Repository
             using (IDbConnection dbConnection = Connection)
             {
                 //dbConnection.Open();
-                //dbConnection.Execute("INSERT INTO phonebook ([Id], name,number) VALUES(@id,@Name,@Number)", item);
+                dbConnection.Execute("INSERT INTO public.pbrecord (username, phonenumber) VALUES(@username,@phonenumber)", item);
                 //var insertSQL = string.Format(@"INSERT INTO public.customer(firstname, lastname, email,createtime)                    VALUES('{0}', '{1}', '{2}','{3}');", "Catcher", "Wong", "catcher_hwq@outlook.com", DateTime.Now);
                 //var res = conn.Execute(insertSQL);
 
-                var insertSQL = string.Format(@"INSERT INTO public.pbrecord (username, phonenumber)                    VALUES('{0}', '{1}');", "Wong", "23e423");
-                var res = dbConnection.Execute(insertSQL);
+                //var insertSQL = string.Format(@"INSERT INTO public.pbrecord (username, phonenumber)                    VALUES('{0}', '{1}');", "Wong", "23e423");
+                //var res = dbConnection.Execute(insertSQL);
 
                 return item;
             }
@@ -48,7 +48,7 @@ namespace PhoneBookApi.Repository
             using (IDbConnection dbConnection = Connection)
             {
                 dbConnection.Open();
-                return dbConnection.Query<PhoneBook>("SELECT * FROM PhoneBook");
+                return dbConnection.Query<PhoneBook>("SELECT * FROM public.pbrecord");
             }
         }
 
@@ -57,7 +57,7 @@ namespace PhoneBookApi.Repository
             using (IDbConnection dbConnection = Connection)
             {
                 dbConnection.Open();
-                return dbConnection.Query<PhoneBook>("SELECT * FROM PhoneBook WHERE [Id] = @Id", new { Id = id }).FirstOrDefault();
+                return dbConnection.Query<PhoneBook>("SELECT * FROM public.pbrecord WHERE id = @Id", new { Id = id }).FirstOrDefault();
             }
         }
 
@@ -66,7 +66,7 @@ namespace PhoneBookApi.Repository
             using (IDbConnection dbConnection = Connection)
             {
                 dbConnection.Open();
-                dbConnection.Execute("DELETE FROM PhoneBook WHERE Id=@Id", new { Id = id });
+                dbConnection.Execute("DELETE FROM public.pbrecord WHERE id=@Id", new { Id = id });
             }
         }
 
@@ -75,7 +75,7 @@ namespace PhoneBookApi.Repository
             using (IDbConnection dbConnection = Connection)
             {
                 dbConnection.Open();
-                dbConnection.Query("UPDATE PhoneBook SET id = @Id,  name  = @Name, number= @Number WHERE id = @Id", item);
+                dbConnection.Query("UPDATE public.pbrecord SET username = @username, phonenumber= @phonenumber WHERE id = @Id", item);
 
                 return item;
             }
