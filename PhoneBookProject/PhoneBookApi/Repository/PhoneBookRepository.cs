@@ -1,5 +1,7 @@
-﻿using Dapper;
+﻿using Confluent.Kafka;
+using Dapper;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -12,10 +14,14 @@ namespace PhoneBookApi.Repository
     public class PhoneBookRepository : IRepository<PhoneBook>
     {
         private string connectionString;
+        private ProducerBuilder<Null, string> producerBuilder;
+        private ProducerConfig producerConfig;
 
-        public PhoneBookRepository(IConfiguration configuration)
+        public PhoneBookRepository(IConfiguration configuration, ProducerConfig config)
         {
             connectionString = configuration.GetValue<string>("DBInfo:ConnectionString");
+            producerConfig = config;
+            producerBuilder = new ProducerBuilder<Null, string>(producerConfig);
         }
 
         internal IDbConnection Connection
@@ -37,10 +43,16 @@ namespace PhoneBookApi.Repository
 
                 //var insertSQL = string.Format(@"INSERT INTO public.pbrecord (username, phonenumber)                    VALUES('{0}', '{1}');", "Wong", "23e423");
                 //var res = dbConnection.Execute(insertSQL);
-
-                return item;
+                
             }
 
+            using (var producer = producerBuilder.Build())
+            {
+                string payload = JsonConvert.SerializeObject(item);
+                producer.Produce("phonebook-incoming", new Message<Null, string> { Value = payload });
+            }
+
+            return item;
         }
 
         public IEnumerable<PhoneBook> FindAll()

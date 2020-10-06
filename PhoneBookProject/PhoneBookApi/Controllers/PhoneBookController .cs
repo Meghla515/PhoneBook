@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Confluent.Kafka;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using PhoneBookApi;
@@ -13,9 +14,9 @@ namespace ASPCoreSample.Controllers
     {
         private readonly PhoneBookRepository phonebookRepository;
 
-        public PhoneBookController(IConfiguration configuration)
+        public PhoneBookController(IConfiguration configuration, ProducerConfig config)
         {
-            phonebookRepository = new PhoneBookRepository(configuration);
+            phonebookRepository = new PhoneBookRepository(configuration, config);
         }
 
         [AllowAnonymous]
