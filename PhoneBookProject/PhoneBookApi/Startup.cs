@@ -11,6 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using PhoneBookPersistense.Repository.PhoneBookRepository;
+using PhoneBookService.Services.PBService;
+using PhoneBookService.Services.PhoneBookService;
 
 namespace PhoneBookApi
 {
@@ -26,13 +29,17 @@ namespace PhoneBookApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            
             var producerConfig = new ProducerConfig();
             Configuration.Bind("producer", producerConfig);
 
             services.AddSingleton<ProducerConfig>(producerConfig);
+            services.AddTransient<IPhoneBookRepository, PhoneBookRepository>();
+            services.AddTransient<IPBService, PBService>();
 
             services.AddControllers();
             services.AddSingleton<IConfiguration>(Configuration);
+            
             services.AddSwaggerGen();
         }
 

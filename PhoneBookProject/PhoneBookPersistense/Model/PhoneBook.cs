@@ -1,13 +1,12 @@
-using PhoneBookApi.Model;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
-namespace PhoneBookApi
+namespace PhoneBookPersistense.Model
 {
     public class PhoneBook : BaseEntity
     {
-        [Key]
-        public int id { get; set; }
         [Required]
         public string username { get; set; }
         [Required]

@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using PhoneBookApi;
-using PhoneBookApi.Repository;
+using PhoneBookPersistense.Repository.PhoneBookRepository;
+using PhoneBookService.DataTransfer.Model;
+using PhoneBookService.Services.PBService;
 using System.Collections.Generic;
 
 namespace ASPCoreSample.Controllers
@@ -12,20 +13,20 @@ namespace ASPCoreSample.Controllers
     [Route("[controller]")]
     public class PhoneBookController : ControllerBase
     {
-        private readonly PhoneBookRepository phonebookRepository;
+        private readonly IPBService pbService;
 
-        public PhoneBookController(IConfiguration configuration, ProducerConfig config)
+        public PhoneBookController(IPBService service)
         {
-            phonebookRepository = new PhoneBookRepository(configuration, config);
+            this.pbService = service;
         }
 
         [AllowAnonymous]
         [Route("save-entry"), HttpPost]
-        [ProducesResponseType(typeof(PhoneBook), 200)]
-        public IActionResult SaveEntry(PhoneBook dto)
+        [ProducesResponseType(typeof(PhoneBookDTO), 200)]
+        public IActionResult SaveEntry(PhoneBookDTO dto)
         {
 
-            var data = phonebookRepository.Add(dto);
+            var data = pbService.SaveEntry(dto);
 
             return Ok(data);
         }
@@ -36,42 +37,37 @@ namespace ASPCoreSample.Controllers
         public IActionResult RemoveEntry(int pbid)
         {
 
-            phonebookRepository.Remove(pbid);
+            pbService.RemoveEntry(pbid);
             return Accepted();
         }
 
         [AllowAnonymous]
         [Route("get-entries"), HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<PhoneBook>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<PhoneBookDTO>), 200)]
         public IActionResult GetPhoneBookEntries()
         {
 
-            var data = phonebookRepository.FindAll();
+            var data = pbService.GetEntries();
             return Ok(data);
         }
 
         [AllowAnonymous]
         [Route("get-entry"), HttpGet]
-        [ProducesResponseType(typeof(PhoneBook), 200)]
+        [ProducesResponseType(typeof(PhoneBookDTO), 200)]
         public IActionResult GetPhoneBookEntry(int pbid)
         {
 
-            var data = phonebookRepository.FindByID(pbid);
+            var data = pbService.GetEntryById(pbid);
             return Ok(data);
         }
 
         [AllowAnonymous]
         [HttpPut("")]
-        [ProducesResponseTypeAttribute(typeof(PhoneBook), 200)]
-        public IActionResult UpdateEntry(PhoneBook dto)
+        [ProducesResponseTypeAttribute(typeof(PhoneBookDTO), 200)]
+        public IActionResult UpdateEntry(PhoneBookDTO dto)
         {
-            var result = phonebookRepository.Update(dto);
-            if (result == null)
-            {
-                return BadRequest("Couldn't update entry. Please check your data or try again later.");
-
-            }
-            return Ok(result);
+            pbService.UpdateEntry(dto);          
+            return Ok();
         }
     }
 }
