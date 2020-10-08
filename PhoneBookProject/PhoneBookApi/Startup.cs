@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PhoneBookPersistense.Repository.PhoneBookRepository;
+using PhoneBookService.Services.MessageService;
 using PhoneBookService.Services.PBService;
 using PhoneBookService.Services.PhoneBookService;
 
@@ -36,6 +37,7 @@ namespace PhoneBookApi
             services.AddSingleton<ProducerConfig>(producerConfig);
             services.AddTransient<IPhoneBookRepository, PhoneBookRepository>();
             services.AddTransient<IPBService, PBService>();
+            services.AddTransient<IProducer, Producer>();
 
             services.AddControllers();
             services.AddSingleton<IConfiguration>(Configuration);
