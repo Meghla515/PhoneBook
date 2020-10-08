@@ -1,22 +1,27 @@
-﻿using PhoneBookPersistense.Model;
+﻿using Newtonsoft.Json;
+using PhoneBookPersistense.Model;
 using PhoneBookPersistense.Repository.PhoneBookRepository;
 using PhoneBookService.DataTransfer.Mapper;
 using PhoneBookService.DataTransfer.Model;
+using PhoneBookService.Services.MessageService;
 using PhoneBookService.Services.PBService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace PhoneBookService.Services.PhoneBookService
 {
     public class PBService : IPBService
     {
         private IPhoneBookRepository repo;
+        private IProducer producer;
 
-        public PBService(IPhoneBookRepository repo)
+        public PBService(IPhoneBookRepository repo, IProducer producer)
         {
             this.repo = repo;
+            this.producer = producer;
         }
 
         public IEnumerable<PhoneBookDTO> GetEntries()
@@ -42,6 +47,9 @@ namespace PhoneBookService.Services.PhoneBookService
                 throw new Exception("not found");
             }
             repo.Remove(entryId);
+
+            KafkaMessage message = new KafkaMessage("phonebookDeleted", JsonConvert.SerializeObject(book.ToDTO()));
+            producer.PublishAsync("phonebook-incoming", message);
         }
 
         public PhoneBookDTO SaveEntry(PhoneBookDTO dto)
@@ -58,6 +66,9 @@ namespace PhoneBookService.Services.PhoneBookService
             }
             var entity = repo.Add(phoneBook);
 
+            KafkaMessage message = new KafkaMessage("phonebookCreated", JsonConvert.SerializeObject(entity.ToDTO()));
+            producer.PublishAsync("phonebook-incoming", message);
+
             return entity.ToDTO();
         }
 
@@ -70,6 +81,9 @@ namespace PhoneBookService.Services.PhoneBookService
             }
             dto.ToEntity(phoneBook);
             repo.Update(phoneBook);
+
+            KafkaMessage message = new KafkaMessage("phonebookUpdated", JsonConvert.SerializeObject(phoneBook.ToDTO()));
+            producer.PublishAsync("phonebook-incoming", message);
         }
     }
 }

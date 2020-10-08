@@ -31,10 +31,10 @@ namespace PhoneBookPersistense.Repository.GenericRepository
         {
             using (IDbConnection dbConnection = Connection)
             {
-                var id = dbConnection.Execute("INSERT INTO public.pbrecord (username, phonenumber) VALUES(@username,@phonenumber) RETURNING id", item);
-
-            return FindByID(id);
+                dbConnection.Execute("INSERT INTO public.pbrecord (username, phonenumber) VALUES(@username,@phonenumber)", item);
             }
+
+            return item;
         }
 
         public IEnumerable<T> FindAll()
